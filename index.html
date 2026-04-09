@@ -1,0 +1,186 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GYATT Slap Simulator</title>
+<style>
+body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(45deg, #ff69b4, #ff1493);
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+.game-container {
+    text-align: center;
+    color: white;
+}
+
+.slap-target {
+    width: 200px;
+    height: 200px;
+    cursor: pointer;
+    transition: transform 0.1s;
+    position: relative;
+    margin: 20px auto;
+}
+
+.stats {
+    font-size: 24px;
+    margin: 20px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.gyatt {
+    font-size: 40px;
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.effect {
+    position: absolute;
+    pointer-events: none;
+    animation: slap 0.5s ease-out forwards;
+}
+
+@keyframes slap {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+.powerup {
+    padding: 10px 20px;
+    margin: 10px;
+    border: none;
+    border-radius: 5px;
+    background: rgba(255,255,255,0.2);
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.powerup:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+</style>
+</head>
+<body>
+<div class="game-container">
+    <h1>GYATT Slap Simulator</h1>
+    <div class="stats">
+        Slaps: <span id="slapCount">0</span><br>
+        Gyatt Power: <span id="power">1</span>x
+    </div>
+    <div class="slap-target" id="slapTarget">
+        <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="45" fill="#ff69b4" stroke="white" stroke-width="2"/>
+            <text x="50" y="55" text-anchor="middle" fill="white" font-size="12">SLAP!</text>
+        </svg>
+    </div>
+    <div>
+        <button class="powerup" onclick="buyPowerup()">Buy Powerup (Cost: <span id="powerupCost">10</span> slaps)</button>
+    </div>
+</div>
+
+<script>
+let slaps = 0;
+let power = 1;
+let powerupCost = 10;
+
+const slapTarget = document.getElementById('slapTarget');
+const slapCountDisplay = document.getElementById('slapCount');
+const powerDisplay = document.getElementById('power');
+const powerupCostDisplay = document.getElementById('powerupCost');
+
+function createSlapEffect(x, y) {
+    const effect = document.createElement('div');
+    effect.className = 'effect';
+    effect.style.left = x + 'px';
+    effect.style.top = y + 'px';
+    effect.innerHTML = '👋';
+    document.body.appendChild(effect);
+    
+    setTimeout(() => effect.remove(), 500);
+}
+
+function createGyattText() {
+    const gyatt = document.createElement('div');
+    gyatt.className = 'gyatt';
+    gyatt.style.left = Math.random() * window.innerWidth + 'px';
+    gyatt.style.top = Math.random() * window.innerHeight + 'px';
+    gyatt.innerHTML = 'GYATT! 😳';
+    document.body.appendChild(gyatt);
+    
+    gyatt.style.opacity = '1';
+    gyatt.style.transform = 'translateY(-50px)';
+    gyatt.style.transition = 'all 1s ease-out';
+    
+    setTimeout(() => {
+        gyatt.style.opacity = '0';
+        setTimeout(() => gyatt.remove(), 1000);
+    }, 100);
+}
+
+slapTarget.addEventListener('click', (e) => {
+    slaps += power;
+    slapCountDisplay.textContent = slaps;
+    
+    createSlapEffect(e.pageX, e.pageY);
+    createGyattText();
+    
+    slapTarget.style.transform = 'scale(0.9)';
+    setTimeout(() => slapTarget.style.transform = 'scale(1)', 100);
+});
+
+function buyPowerup() {
+    if (slaps >= powerupCost) {
+        slaps -= powerupCost;
+        power *= 2;
+        powerupCost *= 3;
+        
+        slapCountDisplay.textContent = slaps;
+        powerDisplay.textContent = power;
+        powerupCostDisplay.textContent = powerupCost;
+    }
+}
+
+// Add some particle effects
+function createParticles() {
+    const colors = ['#ff69b4', '#ff1493', '#ffffff'];
+    
+    for (let i = 0; i < 50; i++) {
+        const particle = document.createElement('div');
+        particle.style.position = 'absolute';
+        particle.style.width = '4px';
+        particle.style.height = '4px';
+        particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+        particle.style.left = Math.random() * window.innerWidth + 'px';
+        particle.style.top = Math.random() * window.innerHeight + 'px';
+        particle.style.borderRadius = '50%';
+        particle.style.pointerEvents = 'none';
+        document.body.appendChild(particle);
+        
+        const animation = particle.animate([
+            { transform: 'translateY(0)', opacity: 0.8 },
+            { transform: 'translateY(-100vh)', opacity: 0 }
+        ], {
+            duration: 5000 + Math.random() * 5000,
+            iterations: Infinity
+        });
+    }
+}
+
+createParticles();
+</script>
+</body>
+</html>
